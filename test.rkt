@@ -1,21 +1,8 @@
 #lang darkstar
 
-Anything before '>>' will be ignored
 
-No blanklines after '>>'
-
-Must end in one blankline
-
-Query in REPL examples:
-(transitions-to "Dark Star")
-(transitions-from "Wharf Rat")
-(count-transitions-to "Casey Jones")
-(count-transitions-from "Mama Tried")
-(count-transitions)
-
+:setlists
 >>
-;; 11-07-1969
-Morning Dew
 Mama Tried
 Next Time You See Me
 Good Lovin'
@@ -24,12 +11,11 @@ I Know You Rider
 Dark Star
 Feelin' Groovy Jam
 Uncle John's Band
-Cryptical Envelopment
+Cryptical Envelopment 
 Drums
-The Other One
+The Other One 
 Turn On Your Love Light
 >
-;; 11-08-1969
 Good Morning, School Girl
 Casey Jones
 Dire Wolf
@@ -41,8 +27,12 @@ Mama Tried
 Good Lovin'
 Cumberland Blues
 Dark Star
+:guest
+=Mickey Mouse
 The Other One
 Dark Star
+:drums
+=Western
 Uncle John's Band
 Dark Star
 St. Stephen
