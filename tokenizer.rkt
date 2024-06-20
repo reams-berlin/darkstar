@@ -9,10 +9,10 @@
        [(:= 1 ">>") (token 'START)]
        [(:+ (:: (:+ (union upper-case lower-case numeric (char-set ",'-"))) (:* " "))) (token 'VALUE lexeme)]
        [(:: ":" (:+ (union upper-case lower-case numeric))) (token 'TYPE (trim-ends ":" lexeme " "))]
-        [(from/to ";;" "\n") (next-token)]
-               [(:+ "\n" )(next-token)]
+       [(from/to ";;" "\n") (next-token)]
+       [(:+ "\n" )(next-token)]
        [(:+ " ") (next-token)]
-        [any-char lexeme]))
+       [any-char lexeme]))
     (darkstar-lexer port))  
   next-token)
 (provide make-tokenizer)
