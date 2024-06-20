@@ -18,6 +18,7 @@
   (define from CURRENT-STATE)
   (define to next-state)
   (define context CURRENT-CONTEXT)
+  
   (unless (member from (list NULL-STATE))
     (add-state? next-state)
     (add-rule? from context to))
@@ -36,7 +37,8 @@
               [(from context to)])))
 
 (define (start)
-  (set! CURRENT-STATE START-STATE))
+  (set! CURRENT-STATE START-STATE)
+  (set! CURRENT-CONTEXT empty))
 
 (define (set-context type val)
   (if (empty? WAITING-TYPES)
@@ -50,17 +52,41 @@
 (define NESTED-CONTEXT empty)
 
 (define (close-nested-context)
+  (if (empty? (rest WAITING-TYPES))
+      (void
   (set! CURRENT-CONTEXT (cons (list (first WAITING-TYPES) (first NESTED-CONTEXT)) CURRENT-CONTEXT))
   (set! WAITING-TYPES (rest WAITING-TYPES))
   (set! NESTED-CONTEXT (rest NESTED-CONTEXT)))
+  (void (set! NESTED-CONTEXT (cons (cons (list (first WAITING-TYPES) (first NESTED-CONTEXT)) (second NESTED-CONTEXT)) (rest NESTED-CONTEXT)))
+   (set! WAITING-TYPES (rest WAITING-TYPES)))))
 
 (provide close-nested-context)
 (define (reset)
-  ;;CHANGE HEREL reset goes to RESTART instead of START
+  ;;CHANGE HERE reset goes to RESTART instead of START
   (read-state RESTART-STATE))
 
 (define (get-result x)
   (cdr (cadr x)))
+
+(define (print-transition transition)
+  (define unwrapped (map cdr transition))
+  (define from (car unwrapped))
+  (define context (if (empty? (cdr unwrapped)) "" (cadr unwrapped)))
+  (define to (caddr unwrapped))
+  (printf "~a -> ~a\n~a\n" from to (print-context context)))
+
+(define (print-pair pair)
+  (cond
+    [(string? (cadr pair)) (string-append ":" (car pair) " " (cadr pair) "\n")]
+    [(string-append ":" (car pair) " {\n" (print-context (cadr pair)) "}\n")]))
+
+(define (print-context context)
+  (cond
+    [(empty? context) ""]
+    [(string-append (print-pair (first context)) (print-context (rest context)))]))
+
+
+  
 
 ;; TODO: Write syntax for queries.
 ;; Providing query functions for now.
@@ -77,7 +103,7 @@
 (provide quote)
 
 (define (show-transitions)
-  (%find-all (from context to) (%transitions-to from context to)))
+  (for-each print-transition (%find-all (from context to) (%transitions-to from context to))))
 (provide show-transitions)
 
 (define (count-transitions)
@@ -160,4 +186,6 @@
 (define-macro (darkstar-expr EXPR ...)
   #'(void EXPR ...))
 (provide darkstar-expr)
+
+
 
