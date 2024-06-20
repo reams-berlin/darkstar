@@ -50,6 +50,7 @@
   (set! NESTED-CONTEXT (cons empty NESTED-CONTEXT)))
 
 (define NESTED-CONTEXT empty)
+(provide NESTED-CONTEXT)
 
 (define (close-nested-context)
   (if (empty? (rest WAITING-TYPES))
@@ -57,7 +58,8 @@
   (set! CURRENT-CONTEXT (cons (list (first WAITING-TYPES) (first NESTED-CONTEXT)) CURRENT-CONTEXT))
   (set! WAITING-TYPES (rest WAITING-TYPES))
   (set! NESTED-CONTEXT (rest NESTED-CONTEXT)))
-  (void (set! NESTED-CONTEXT (cons (cons (list (first WAITING-TYPES) (first NESTED-CONTEXT)) (second NESTED-CONTEXT)) (rest NESTED-CONTEXT)))
+  (void
+   (set! NESTED-CONTEXT (cons (cons (list (first WAITING-TYPES) (first NESTED-CONTEXT)) (second NESTED-CONTEXT)) (rest (rest NESTED-CONTEXT))))
    (set! WAITING-TYPES (rest WAITING-TYPES)))))
 
 (provide close-nested-context)
