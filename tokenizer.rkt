@@ -5,15 +5,14 @@
   (define (next-token)
     (define darkstar-lexer
       (lexer
-       [(:+ "\n") (next-token)]
-       [(from/to ":" "\n") (token 'TYPE-EXPR (trim-ends ":" lexeme "\n"))]
-       [(from/to "=" "\n") (token 'VALUE-EXPR (trim-ends "=" lexeme "\n"))]
-       [(from/to ">>" "\n") (token 'START-EXPR (trim-ends ">>" lexeme "\n"))]
-       [(from/to ">" "\n") (token 'RESET-EXPR (trim-ends ">" lexeme "\n"))]
-       [(from/to ":" "\n") (token 'TYPE-EXPR (trim-ends ":" lexeme "\n"))]
-       [(from/to ";;" "\n") (next-token)]
-       [(from/to any-char "\n")
-        (token 'STATE-EXPR (trim-ends "" lexeme "\n"))]))
+       [(:= 1 ">") (token 'RESET)]
+       [(:= 1 ">>") (token 'START)]
+       [(:+ (:: (:+ (union upper-case lower-case numeric (char-set ",'-"))) (:* " "))) (token 'VALUE lexeme)]
+       [(:: ":" (:+ (union upper-case lower-case numeric))) (token 'TYPE (trim-ends ":" lexeme " "))]
+        [(from/to ";;" "\n") (next-token)]
+               [(:+ "\n" )(next-token)]
+       [(:+ " ") (next-token)]
+        [any-char lexeme]))
     (darkstar-lexer port))  
   next-token)
 (provide make-tokenizer)
