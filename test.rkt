@@ -1,49 +1,77 @@
 #lang darkstar
+
 setlists {
-  date { 04 53 23 }
+  date { 05 08 77 },
   venue {
-    name { Theatre }
-    city { Cool City }
-    state { Cool State }
-  }
+    name { Barton Hall },
+    city { Ithaca },
+    state { NY }
+  },
   songs {
     Morning Dew
-    Casey Jones
-    All Along The Watch Tower
+    Cassidy {
+       Guitar Intro
+    }
+    Scarlet Begonias 
+    Fire on the Mountain 
+    St. Stephen {
+      Guitar Intro
+    }
+    Not Fade Away {
+      Drum Intro
+    }
+  },
+   
+  date { 06 18 74 },
+  venue {
+    name { Freedom Hall },
+    city { Louisville },
+    state { KY },
+  },
+  songs {
+    Eyes of the World 
+    China Cat Sunflower 
+    I Know You Rider 
     Dark Star {
       Dark Star Intro Riff
       Mixo-Penta jamming
       Shall We Go Motiff
-      Mixo-Penta jamming {
-        instruments {
-          guitar { trippy trilling }  
-          bass { riffing }
-        }
+      Mixo-Penta jamming
+      Breakdown {
+        guitar { trippy trilling },
+        bass { riffing }
       }
       Mixo-Penta buildup
       Mixo-Penta jamming
+      Minor break
+      Mixo-Penta jamming
+      Dark Star Riff
+      Mixo-Penta jamming
     }
-    Drums
-    Space
+    Playing in the Band 
+    Ship of Fools {
+      Piano Intro 
+    }
   },
-  date { 04 53 33 }
+   
+  date { 12 31 78 },
   venue {
-    name { Theatre2 }
-    city { Cool City }
-    state { Cool State }
+    name { Winterland Arena },
+    city { San Francisco },
+    state { CA },
   }
   songs {
-    Wharf Rat
-    Truckin'
-    Drums {
-      style { eerie }
+    Sugar Magnolia {
+      Guitar Intro
     }
-    Space
-    Peggy-o
-    Dark Star {
-      Dark Star Intro Riff
-      Mixo-Penta jamming
-      Shall We Go Motiff
+    Scarlet Begonias 
+    Fire on the Mountain
+    Samson and Delilah {
+       Drum Intro
+    }
+    Terrapin Station
+    One More Saturday Night {
+      Piano Intro
     }
   }
 }
