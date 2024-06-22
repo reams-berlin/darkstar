@@ -2,93 +2,49 @@
 
 (require racklog)
 
-(define START-STATE "--START--")
-(define RESTART-STATE "--RESTART--")
-(define NULL-STATE "--NULL--")
-(define CURRENT-STATE NULL-STATE)
-(define STATES empty)
-(provide STATES)
-(define CURRENT-CONTEXT empty)
-(provide CURRENT-CONTEXT)
-(define WAITING-TYPES empty)
+(define RESTART-STATE "--RESET--")
+(define CURRENT-STATE "--START--")
+(define STATE-HIERARCHY (list CURRENT-STATE))
 
 (define %transitions-to %empty-rel)
 
 (define (read-state next-state)
   (define from CURRENT-STATE)
   (define to next-state)
-  (define context CURRENT-CONTEXT)
-  
-  (unless (member from (list NULL-STATE))
-    (add-state? next-state)
-    (add-rule? from context to))
-  (unless (eq? CURRENT-STATE NULL-STATE)
-    (set! CURRENT-STATE next-state)
-    (set! CURRENT-CONTEXT empty)))
-
-(define (add-state? next-state)
-  (unless (member next-state STATES)
-    (set! STATES (cons next-state STATES))))
-
+  (define context STATE-HIERARCHY)
+  (add-rule? from context to)
+  (set! CURRENT-STATE next-state))
+ 
 (define (add-rule? from context to)
   (unless (%which ()
-                  (%transitions-to  from context to))
+                  (%transitions-to from context to))
     (%assert! %transitions-to ()
               [(from context to)])))
 
 (define (start)
-  (set! CURRENT-STATE START-STATE)
-  (set! CURRENT-CONTEXT empty))
+  (read-state (first STATE-HIERARCHY))
+  (set! CURRENT-STATE (first STATE-HIERARCHY)))
 
-(define (set-context type val)
-  (if (empty? WAITING-TYPES)
-      (set! CURRENT-CONTEXT (cons (list type val) CURRENT-CONTEXT))
-      (set! NESTED-CONTEXT (cons (cons (list type val) (first NESTED-CONTEXT)) (rest NESTED-CONTEXT)))))
-
-(define (start-context type)
-  (set! WAITING-TYPES (cons type WAITING-TYPES))
-  (set! NESTED-CONTEXT (cons empty NESTED-CONTEXT)))
-
-(define NESTED-CONTEXT empty)
-(provide NESTED-CONTEXT)
-
-(define (close-nested-context)
-  (if (empty? (rest WAITING-TYPES))
-      (void
-  (set! CURRENT-CONTEXT (cons (list (first WAITING-TYPES) (first NESTED-CONTEXT)) CURRENT-CONTEXT))
-  (set! WAITING-TYPES (rest WAITING-TYPES))
-  (set! NESTED-CONTEXT (rest NESTED-CONTEXT)))
-  (void
-   (set! NESTED-CONTEXT (cons (cons (list (first WAITING-TYPES) (first NESTED-CONTEXT)) (second NESTED-CONTEXT)) (rest (rest NESTED-CONTEXT))))
-   (set! WAITING-TYPES (rest WAITING-TYPES)))))
-
-(provide close-nested-context)
 (define (reset)
-  ;;CHANGE HERE reset goes to RESTART instead of START
   (read-state RESTART-STATE))
 
-(define (get-result x)
-  (cdr (cadr x)))
+(define (start-model state)
+  (read-state state)
+  (set! STATE-HIERARCHY (cons state STATE-HIERARCHY)))
+
+(define (close-model val)
+  (read-state val)
+  (set! STATE-HIERARCHY (rest STATE-HIERARCHY)))
 
 (define (print-transition transition)
   (define unwrapped (map cdr transition))
   (define from (car unwrapped))
-  (define context (if (empty? (cdr unwrapped)) "" (cadr unwrapped)))
+  (define context (cadr unwrapped))
   (define to (caddr unwrapped))
-  (printf "~a -> ~a\n~a\n" from to (print-context context)))
+  (printf "~a -> ~a\n~a\n\n" from to context))
 
-(define (print-pair pair)
-  (cond
-    [(string? (cadr pair)) (string-append ":" (car pair) " " (cadr pair) "\n")]
-    [(string-append ":" (car pair) " {\n" (print-context (cadr pair)) "}\n")]))
-
-(define (print-context context)
-  (cond
-    [(empty? context) ""]
-    [(string-append (print-pair (first context)) (print-context (rest context)))]))
-
-
-  
+(define (get-result x)
+  (cdr (cadr x)))
 
 ;; TODO: Write syntax for queries.
 ;; Providing query functions for now.
@@ -102,7 +58,6 @@
   (map (lambda (x) (cdr (car x))) (%find-all (to)
                                              (%transitions-to from context to))))
 (provide transitions-from-with)
-(provide quote)
 
 (define (show-transitions)
   (for-each print-transition (%find-all (from context to) (%transitions-to from context to))))
@@ -130,36 +85,30 @@
                              (%transitions-to from context to))))
 (provide transitions-from)
 
-(define (begin)
+(define (begin start)
   (map get-result (%find-all (context to)
-                             (%transitions-to START-STATE context to))))
+                             (%transitions-to start context to))))
 (provide begin)
+
+
 
 
 ;; Macros
 
 (define-macro (darkstar-mb PARSE-TREE)
+  (displayln "module begin")
   #'(#%module-begin
      'PARSE-TREE
      PARSE-TREE))
+
 (provide (rename-out [darkstar-mb #%module-begin]))
 
 
-(define-macro (type-def EXPR)
-  #'void)
-(provide type-def)
-
-(define-macro (open-context-expr EXPR BRACKET)
-  #'(start-context EXPR))
-(provide open-context-expr)
-
-(define-macro (nested-context-expr EXPR ...)
-  #'(void EXPR ...))
-(provide nested-context-expr)
-
-(define-macro (close-context-expr BRACKET)
-  #'(close-nested-context))
-(provide close-context-expr)
+(define-macro (nested-model-expr VALUE OPEN-BRACKET EXPR ... CLOSE-BRACKET)
+  #'(void (start-model VALUE)
+          EXPR ...
+          (close-model VALUE)))
+(provide nested-model-expr)
 
 (define-macro (goto-expr EXPR)
   #'EXPR)
@@ -168,10 +117,6 @@
 (define-macro (state-expr STATE)
   #'(read-state STATE))
 (provide state-expr)
-
-(define-macro (context-expr TYPE VAL)
-  #'(set-context TYPE VAL))
-(provide context-expr)
 
 (define-macro (reset-expr N)
   #'(reset))
@@ -182,11 +127,12 @@
 (provide start-expr)
 
 (define-macro (darkstar-program TYPE EXPR ...)
-  #'(void EXPR ...))
+  (displayln "hello")
+  #'(void TYPE EXPR ...))
 (provide darkstar-program)
 
-(define-macro (darkstar-expr EXPR ...)
-  #'(void EXPR ...))
+(define-macro (darkstar-expr EXPR)
+  #'EXPR)
 (provide darkstar-expr)
 
 
