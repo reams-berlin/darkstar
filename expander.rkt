@@ -4,6 +4,8 @@
 
 (define RESTART-STATE "--RESET--")
 (define CURRENT-STATE "--START--")
+(define END-STATE "--END--")
+
 (define STATE-HIERARCHY (list CURRENT-STATE))
 
 (define %transitions-to %empty-rel)
@@ -30,11 +32,11 @@
 
 (define (start-model state)
   (set! STATE-HIERARCHY (cons state STATE-HIERARCHY))
-    (read-state state))
+  (read-state state))
 
 (define (close-model val)
-  (read-state val)
-  (set! STATE-HIERARCHY (rest STATE-HIERARCHY)))
+  (set! STATE-HIERARCHY (rest STATE-HIERARCHY))
+  (read-state val))
 
 
 (define (print-transition transition)
@@ -49,6 +51,11 @@
 
 ;; TODO: Write syntax for queries.
 ;; Providing query functions for now.
+
+(define (context-for state)
+  (map (lambda (x)(cdr (car x))) (%find-all (context _)
+                                            (%transitions-to _ context state))))
+(provide context-for)
 
 (define (states-with context)
   (map (lambda (x) (cdr (car x))) (%find-all (from _)
@@ -87,22 +94,21 @@
 (provide transitions-from)
 
 (define (immediate-transitions-from from)
- (map get-result (filter (lambda (t) (equal? from (cadr (car t)))) (%find-all (context to)
-                             (%transitions-to from context to)))))
+  (map get-result (filter (lambda (t) (equal? from (cadr (car t))))
+                          (%find-all (context to)
+                                     (%transitions-to from context to)))))
 (provide immediate-transitions-from)
 
 (define (extended-transitions-from from)
- (map get-result (filter (lambda (t) (not (equal? from (cadr (car t))))) (%find-all (context to)
-                             (%transitions-to from context to)))))
+  (map get-result (filter (lambda (t) (not (equal? from (cadr (car t)))))
+                          (%find-all (context to)
+                                     (%transitions-to from context to)))))
 (provide extended-transitions-from)
 
 (define (begin start)
   (map get-result (%find-all (context to)
                              (%transitions-to start context to))))
 (provide begin)
-
-
-
 
 ;; Macros
 
@@ -133,18 +139,59 @@
   #'(reset))
 (provide reset-expr)
 
+(define COUNTER 0)
+
+(define (counter)
+  (set! COUNTER (add1 COUNTER))
+  COUNTER)
+  
+  
+
+(define (build-nested-model-state-expr lst)
+  (for-each (lambda (x)
+              (cond
+                [(eq? (second x) #f) (start)]
+                [(eq? (first x) 'state-expr)
+                 (read-state (second x))]
+                [(eq? (first x) 'start-model)
+                 (start-model (second x))]
+                [(eq? (first x) 'close-model)
+                 (close-model (second x))]))
+            (foldr append empty
+                   (map (lambda (p)
+                          (cons `(start-model ,(number->string (counter)))
+                                (append p
+                                        (list `(close-model ,(number->string COUNTER))
+                                              '(start-expr #f)))))
+                        (perms lst)))))
+
+(define (perms lst)
+  (match lst
+    [(list x)  (list (list x))]
+    [(list x y)(list (list x y)
+                     (list y x))]
+    [xs (foldr append empty
+               (map (λ (x)
+                      (map (curry cons x)
+                           (perms (remove x xs)))) xs))]))
+
+(define-macro (combinator-expr VALUE OPEN EXPR ... CLOSE)
+  #'(void
+     (start-model VALUE)
+     (build-nested-model-state-expr '(EXPR ...))
+     (close-model VALUE)))
+(provide combinator-expr)
+
 (define-macro (start-expr N)
   #'(start))
 (provide start-expr)
 
-(define-macro (darkstar-program TYPE EXPR ...)
+(define-macro (darkstar-program VALUE EXPR ...)
   (displayln "hello")
-  #'(void TYPE EXPR ...))
+  #'(void VALUE EXPR ...))
 (provide darkstar-program)
 
 (define-macro (darkstar-expr EXPR)
   #'EXPR)
 (provide darkstar-expr)
-
-
 
