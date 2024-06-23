@@ -7,7 +7,7 @@ setlists {
       name { Barton Hall }
       city { Ithaca }
       state { NY }
-    },
+    }
     songs {
       Morning Dew 
       Cassidy {
