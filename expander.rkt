@@ -29,12 +29,13 @@
   (read-state RESTART-STATE))
 
 (define (start-model state)
-  (read-state state)
-  (set! STATE-HIERARCHY (cons state STATE-HIERARCHY)))
+  (set! STATE-HIERARCHY (cons state STATE-HIERARCHY))
+    (read-state state))
 
 (define (close-model val)
   (read-state val)
   (set! STATE-HIERARCHY (rest STATE-HIERARCHY)))
+
 
 (define (print-transition transition)
   (define unwrapped (map cdr transition))
@@ -84,6 +85,16 @@
   (map get-result (%find-all (context to)
                              (%transitions-to from context to))))
 (provide transitions-from)
+
+(define (immediate-transitions-from from)
+ (map get-result (filter (lambda (t) (equal? from (cadr (car t)))) (%find-all (context to)
+                             (%transitions-to from context to)))))
+(provide immediate-transitions-from)
+
+(define (extended-transitions-from from)
+ (map get-result (filter (lambda (t) (not (equal? from (cadr (car t))))) (%find-all (context to)
+                             (%transitions-to from context to)))))
+(provide extended-transitions-from)
 
 (define (begin start)
   (map get-result (%find-all (context to)

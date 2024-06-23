@@ -1,14 +1,15 @@
 #lang darkstar
 
 setlists {
-  date { 05 08 77 },
+  1 {
+  date { 05 08 77 }
   venue {
-    name { Barton Hall },
-    city { Ithaca },
+    name { Barton Hall }
+    city { Ithaca }
     state { NY }
   },
   songs {
-    Morning Dew
+    Morning Dew 
     Cassidy {
        Guitar Intro
     }
@@ -20,14 +21,14 @@ setlists {
     Not Fade Away {
       Drum Intro
     }
-  },
-   
-  date { 06 18 74 },
+  }},
+  2 {
+  date { 06 18 74 }
   venue {
-    name { Freedom Hall },
-    city { Louisville },
-    state { KY },
-  },
+    name { Freedom Hall }
+    city { Louisville }
+    state { KY }
+  }
   songs {
     Eyes of the World 
     China Cat Sunflower 
@@ -38,7 +39,7 @@ setlists {
       Shall We Go Motiff
       Mixo-Penta jamming
       Breakdown {
-        guitar { trippy trilling },
+        guitar { trippy trilling }
         bass { riffing }
       }
       Mixo-Penta buildup
@@ -52,26 +53,27 @@ setlists {
     Ship of Fools {
       Piano Intro 
     }
-  },
-   
-  date { 12 31 78 },
-  venue {
-    name { Winterland Arena },
-    city { San Francisco },
-    state { CA },
-  }
-  songs {
-    Sugar Magnolia {
-      Guitar Intro
+  }},
+  3 {
+    date { 12 31 78 }
+    venue {
+      name { Winterland Arena }
+      city { San Francisco }
+      state { CA }
     }
-    Scarlet Begonias 
-    Fire on the Mountain
-    Samson and Delilah {
-       Drum Intro
-    }
-    Terrapin Station
-    One More Saturday Night {
-      Piano Intro
+    songs {
+      Sugar Magnolia {
+        Guitar Intro
+      }
+      Scarlet Begonias 
+      Fire on the Mountain
+      Samson and Delilah {
+        Drum Intro
+      }
+      Terrapin Station
+      One More Saturday Night {
+        Piano Intro
+      }
     }
   }
 }
