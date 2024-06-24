@@ -2,7 +2,7 @@
 
 (require racklog)
 
-(define RESTART-STATE "--RESET--")
+(define NULL-STATE "--NULL--")
 (define CURRENT-STATE "--START--")
 (define END-STATE "--END--")
 
@@ -28,7 +28,7 @@
   (set! CURRENT-STATE (first STATE-HIERARCHY)))
 
 (define (reset)
-  (read-state RESTART-STATE))
+  (read-state NULL-STATE))
 
 (define (start-model state)
   (set! STATE-HIERARCHY (cons state STATE-HIERARCHY))
