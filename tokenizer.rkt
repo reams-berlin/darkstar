@@ -9,6 +9,8 @@
        [(:= 1 ",") (token 'START)]
        [(:= 1 "{") (token 'OPEN-BRACKET)]
        [(:= 1 "}") (token 'CLOSE-BRACKET)]
+       [(:= 1 "[") (token 'SQUARE-OPEN-BRACKET)]
+       [(:= 1 "]") (token 'SQUARE-CLOSE-BRACKET)]
        [(::
          (:* (:: (:+ (union upper-case lower-case numeric (char-set ".'-"))) (:* " ")))
          (:+ (union upper-case lower-case numeric (char-set ".'-"))))
